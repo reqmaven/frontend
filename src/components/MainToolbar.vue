@@ -32,7 +32,7 @@ import { defineComponent } from 'vue'
 
 export default defineComponent({
   name: 'MainToolbar',
-  emits: ['toggleLeftDrawer', 'toggleRightDrawer'],
+  emits: ['toggleLeftDrawer', 'toggleRightDrawer', 'importDialog'],
   setup() {},
 })
 </script>
