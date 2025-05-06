@@ -20,7 +20,7 @@
       <router-view />
     </q-page-container>
 
-    <ImportDialog v-model="import_dialog"></ImportDialog>
+    <ImportDialog v-model="import_dialog" url="/requirements_import"></ImportDialog>
   </q-layout>
 </template>
 

@@ -17,6 +17,12 @@
         />
         <q-btn
           flat
+          label="Import Requirements"
+          color="secondary"
+          @click="import_requirements_dialog = true"
+        />
+        <q-btn
+          flat
           label="Delete"
           color="negative"
           @click="show_delete_confirmation_dialog = true"
@@ -44,6 +50,12 @@
         <strong>{{ requirement_source.name }}</strong> requirement source?
       </template></DeleteConfirmationDialog
     >
+
+    <ImportDialog
+      v-model="import_requirements_dialog"
+      url="/project_requirements_import"
+      :params="{ source_reference: requirement_source.id }"
+    />
   </div>
 </template>
 
@@ -55,6 +67,7 @@ import { api } from 'boot/axios'
 import DeleteConfirmationDialog from 'components/dialogs/DeleteConfirmationDialog.vue'
 import RequirementSourceEditCreateDialog from 'components/dialogs/RequirementSourceEditCreateDialog.vue'
 import RequirementEditCreateDialog from 'components/dialogs/RequirementEditCreateDialog.vue'
+import ImportDialog from 'components/dialogs/ImportDialog.vue'
 
 export default {
   props: { id: String },
@@ -65,6 +78,7 @@ export default {
     const edit_requirement_source_dialog = ref()
     const show_delete_confirmation_dialog = ref()
     const create_requirement_dialog = ref()
+    const import_requirements_dialog = ref()
 
     function loadInitialData() {
       api.get(`/requirement-source/${props.id}`).then((response) => {
@@ -104,6 +118,7 @@ export default {
       edit_requirement_source_dialog,
       show_delete_confirmation_dialog,
       create_requirement_dialog,
+      import_requirements_dialog,
 
       onRequirementSourceUpdated,
       onRequirementSourceDelete,
@@ -113,6 +128,7 @@ export default {
     DeleteConfirmationDialog,
     RequirementSourceEditCreateDialog,
     RequirementEditCreateDialog,
+    ImportDialog,
   },
 }
 </script>

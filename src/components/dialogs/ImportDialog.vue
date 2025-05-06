@@ -35,8 +35,15 @@ import { api } from 'boot/axios'
 
 export default defineComponent({
   name: 'ImportDialog',
-  props: {},
-  setup() {
+  props: {
+    url: {
+      type: String,
+    },
+    params: {
+      type: Object,
+    },
+  },
+  setup(props) {
     const loading = ref()
     const importer = ref()
     const import_progress = ref()
@@ -44,8 +51,12 @@ export default defineComponent({
 
     function onSubmit() {
       var formData = new FormData()
+      for (let key in props.params) {
+        formData.append(key, props.params[key])
+      }
+
       formData.append('file', importer.value)
-      api.post('/requirements_import', formData, {
+      api.post(props.url, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
