@@ -7,10 +7,27 @@
         <strong>Requirement type: </strong>{{ requirement.type }}<br />
         <strong>Requirement identifier: </strong>{{ requirement.req_identifier }}<br />
         <strong>PUID: </strong>{{ requirement.ie_puid }}<br />
-        <strong>Requirement: </strong> {{ requirement.requirement }}<br />
-        <strong>Notes: </strong>{{ requirement.notes }}<br />
-        <strong>Applicability comment: </strong> {{ requirement.applicability_comment }}<br />
       </q-card-section>
+
+      <q-card-section>
+        <q-separator />
+        <strong>Requirement:</strong><br />
+        <q-markdown :src="requirement.requirement" show-copy />
+        <br />
+        <q-separator />
+
+        <strong>Notes:</strong><br />
+        <q-markdown :src="requirement.notes" />
+        <br />
+
+        <q-separator />
+
+        <strong>Applicability comment: </strong><br />
+        <q-markdown :src="requirement.applicability_comment" />
+        <br />
+      </q-card-section>
+
+      <q-separator />
 
       <q-card-actions align="right" class="bg-white text-teal">
         <q-btn flat label="Edit" color="primary" @click="edit_requirement = true" />

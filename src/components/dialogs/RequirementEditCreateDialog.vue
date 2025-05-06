@@ -23,6 +23,17 @@
         ></SelectField>
         <br />
         <q-input
+          type="textarea"
+          v-model="requirement.applicability_comment"
+          autofocus
+          autogrow
+          filled
+          @keyup.enter="prompt = false"
+          label="Applicability comment"
+          hint="Applicability comment"
+        />
+        <br />
+        <q-input
           v-model="requirement.name"
           autofocus
           filled
@@ -47,6 +58,7 @@
           label="Requirement"
           hint="Requirement text"
         />
+        <q-markdown :src="requirement.requirement" />
         <br />
         <q-input
           type="textarea"
@@ -133,7 +145,7 @@ export default {
         .then((response) => {
           $q.notify({
             color: 'positive',
-            message: `Project ${response.data.name} updated`,
+            message: `Requirement ${response.data.name} updated`,
           })
           ctx.emit('onUpdated')
         })
