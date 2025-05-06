@@ -7,6 +7,7 @@
     multiple
     input-debounce="0"
     :options="filterOptions"
+    @filter="filterFn"
     style="width: 250px"
     option-label="name"
     option-value="id"
@@ -32,11 +33,11 @@ export default {
     function filterFn(val, update) {
       update(() => {
         if (val === '') {
-          filterOptions.value = stringOptions
+          filterOptions.value = stringOptions.value
         } else {
           const needle = val.toLowerCase()
           filterOptions.value = stringOptions.value.filter(
-            (v) => v.toLowerCase().indexOf(needle) > -1,
+            (v) => v.name.toLowerCase().indexOf(needle) > -1,
           )
         }
       })
@@ -51,7 +52,7 @@ export default {
           filterOptions.value = stringOptions.value
         })
       } else {
-        api.get(`${props.url}`).then((response) => {
+        api.get(`${props.url}?page_size=1000`).then((response) => {
           stringOptions.value = response.data.results
           filterOptions.value = response.data.results
         })
