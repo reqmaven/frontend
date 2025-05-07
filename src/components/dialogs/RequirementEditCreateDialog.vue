@@ -1,28 +1,50 @@
 <template>
   <q-dialog @before-show="load_initial_data">
-    <q-card style="width: 700px; max-width: 80vw">
+    <q-card style="width: 70vw; max-width: 90vw">
       <q-card-section>
         <div class="text-h6">{{ props.title }}</div>
       </q-card-section>
 
       <q-separator />
 
-      <q-card-section>
+      <q-card-section class="row">
+        <q-input
+          class="col-3 q-pa-sm"
+          v-model="requirement.req_identifier"
+          filled
+          label="Requirement Identifier"
+          hint="Requirement Identifier"
+        />
         <SelectField
+          class="col-3 q-pa-sm"
           label="Requirement Type"
           v-model="requirement_type"
           url="/requirements/"
           options_field="type"
         ></SelectField>
-        <br />
+      </q-card-section>
+
+      <q-card-section class="row">
+        <q-input
+          class="col-3 q-pa-sm"
+          v-model="requirement.name"
+          autofocus
+          filled
+          label="Requirement name"
+          hint="Requirement name"
+        />
         <SelectField
+          class="col-3 q-pa-sm"
           label="Applicability"
           v-model="applicability"
           url="/requirements/"
           options_field="applicability"
         ></SelectField>
-        <br />
+      </q-card-section>
+
+      <q-card-section class="row">
         <q-input
+          class="col-6 q-pa-sm"
           type="textarea"
           v-model="requirement.applicability_comment"
           autofocus
@@ -32,23 +54,12 @@
           label="Applicability comment"
           hint="Applicability comment"
         />
-        <br />
+        <q-markdown :src="requirement.applicability_comment" class="col-6 q-pa-sm" />
+      </q-card-section>
+
+      <q-card-section class="row">
         <q-input
-          v-model="requirement.name"
-          autofocus
-          filled
-          label="Requirement name"
-          hint="Requirement name"
-        />
-        <br />
-        <q-input
-          v-model="requirement.req_identifier"
-          filled
-          label="Requirement Identifier"
-          hint="Requirement Identifier"
-        />
-        <br />
-        <q-input
+          class="col-6 q-pa-sm"
           type="textarea"
           v-model="requirement.requirement"
           autofocus
@@ -58,9 +69,12 @@
           label="Requirement"
           hint="Requirement text"
         />
-        <q-markdown :src="requirement.requirement" />
-        <br />
+        <q-markdown :src="requirement.requirement" class="col-6 q-pa-sm" />
+      </q-card-section>
+
+      <q-card-section class="row">
         <q-input
+          class="col-6 q-pa-sm"
           type="textarea"
           v-model="requirement.notes"
           autogrow
@@ -68,7 +82,11 @@
           label="Requirement notes"
           hint="Requirement notes"
         />
+        <q-markdown :src="requirement.notes" class="col-6 q-pa-sm" />
       </q-card-section>
+
+      <q-separator />
+
       <q-card-actions align="right">
         <q-btn flat label="Cancel" v-close-popup />
         <q-btn flat label="Save" color="primary" type="submit" @click="validate_and_submit()" />
@@ -103,16 +121,40 @@ export default {
   emits: ['onCreated', 'onUpdated'],
   setup(props, ctx) {
     const new_project_name = ref()
-    const requirement = ref({ requirement: '', notes: '' })
+    const requirement = ref({ requirement: '', notes: '', type: null })
     const $q = useQuasar()
     const applicability = ref()
+    const applicability_options = ref()
     const requirement_type = ref()
+    const requirement_types = ref()
+
+    function load_requirement_types() {
+      api.options('/requirements/').then((response) => {
+        requirement_types.value = response.data.actions.POST['type'].choices.map((x) => {
+          return { id: x.value, name: x.display_name }
+        })
+      })
+    }
+
+    function load_applicability_options() {
+      api.options('/requirements/').then((response) => {
+        applicability_options.value = response.data.actions.POST['applicability'].choices.map(
+          (x) => {
+            return { id: x.value, name: x.display_name }
+          },
+        )
+      })
+    }
 
     function load_initial_data() {
+      load_requirement_types()
+      load_applicability_options()
       if (props.requirement_id) {
         api.get(`/requirements/${props.requirement_id}/`).then((response) => {
           new_project_name.value = response.data.name
           requirement.value = response.data
+          requirement_type.value = requirement_types.value[requirement.value.type]
+          applicability.value = applicability_options.value[requirement.value.applicability]
         })
       } else {
         requirement.value.requirement = ''

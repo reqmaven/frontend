@@ -3,13 +3,13 @@
     filled
     v-model="model"
     use-input
-    use-chips
     input-debounce="0"
     :options="filterOptions"
     style="width: 250px"
     option-label="name"
     option-value="id"
     map-options
+    @filter="filterFn"
   />
 </template>
 
@@ -29,13 +29,14 @@ export default {
     const filterOptions = ref([])
 
     function filterFn(val, update) {
+      model.value = stringOptions.value[3]
       update(() => {
         if (val === '') {
-          filterOptions.value = stringOptions
+          filterOptions.value = stringOptions.value
         } else {
           const needle = val.toLowerCase()
           filterOptions.value = stringOptions.value.filter(
-            (v) => v.toLowerCase().indexOf(needle) > -1,
+            (v) => v.name.toLowerCase().indexOf(needle) > -1,
           )
         }
       })
@@ -47,7 +48,6 @@ export default {
           stringOptions.value = response.data.actions.POST[props.options_field].choices.map((x) => {
             return { id: x.value, name: x.display_name }
           })
-          filterOptions.value = stringOptions.value
         })
       } else {
         api.get(`${props.url}`).then((response) => {
