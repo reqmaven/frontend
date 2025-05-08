@@ -3,8 +3,8 @@
     <q-card>
       <q-card-section>
         <strong>Name: </strong> {{ requirement.name }}<br />
-        <strong>Applicability: </strong> {{ requirement.applicability }}<br />
-        <strong>Requirement type: </strong>{{ requirement.type }}<br />
+        <strong>Applicability: </strong> {{ applic[requirement.applicability] }}<br />
+        <strong>Requirement type: </strong>{{ req_type_map[requirement.type] }}<br />
         <strong>Requirement identifier: </strong>{{ requirement.req_identifier }}<br />
         <strong>PUID: </strong>{{ requirement.ie_puid }}<br />
       </q-card-section>
@@ -46,6 +46,10 @@
       </q-card-actions>
     </q-card>
 
+    <q-card>
+      <q-card-section><q-markdown :src="page" /></q-card-section>
+    </q-card>
+
     <RequirementEditCreateDialog
       v-model="edit_requirement"
       title="Edit Requirement"
@@ -79,6 +83,16 @@ import { api } from 'boot/axios'
 import RequirementEditCreateDialog from 'components/dialogs/RequirementEditCreateDialog.vue'
 import DeleteConfirmationDialog from 'components/dialogs/DeleteConfirmationDialog.vue'
 
+const applic = ['Todo', 'Applicable', 'No', 'Modified']
+const req_type_map = [
+  'unknown',
+  'Requirement',
+  'Recommendation',
+  'Permission',
+  'Heading',
+  'Information',
+]
+
 export default {
   props: { id: String },
   setup(props) {
@@ -88,11 +102,39 @@ export default {
     const edit_requirement = ref()
     const create_requirement = ref()
     const show_delete_confirmation_dialog = ref()
+    const page = ref()
 
     function loadInitialData() {
       api.get(`/requirements/${props.id}`).then((response) => {
         requirement.value = response.data
+
+        createPage()
       })
+    }
+
+    function formatChildren(children) {
+      console.log(children)
+      let req = `
+### ${children.name} - ${children.ie_puid}
+${children.requirement}`
+      return req
+    }
+
+    function getChildrens(id) {
+      api.get(`/requirement-childrens/${id}`).then((response) => {
+        console.log(response.data)
+        let page_text = `## ${requirement.value.name}
+${requirement.value.requirement}`
+        for (let child of response.data.children) {
+          page_text += formatChildren(child)
+        }
+        console.log(page_text)
+        page.value = page_text
+      })
+    }
+
+    function createPage() {
+      getChildrens(requirement.value.id)
     }
 
     function onUpdated() {
@@ -120,6 +162,7 @@ export default {
       () => {
         api.get(`/requirements/${route.params.id}`).then((response) => {
           requirement.value = response.data
+          createPage()
         })
       },
     )
@@ -133,10 +176,14 @@ export default {
       edit_requirement,
       create_requirement,
       show_delete_confirmation_dialog,
+      page,
 
       onCreated,
       onUpdated,
       onRequirementDelete,
+
+      applic,
+      req_type_map,
     }
   },
   components: { RequirementEditCreateDialog, DeleteConfirmationDialog },
