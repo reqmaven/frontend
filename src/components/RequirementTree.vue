@@ -10,6 +10,7 @@
     selected-color="primary"
     v-model:selected="selected"
     no-selection-unset
+    no-transition
     dense
   />
   <ProjectEditCreateDialog
@@ -64,6 +65,9 @@ export default {
           for (let s in tmp) {
             tmp[s].lazy = true
             tmp[s].id = 's' + tmp[s].id
+            if (tmp[s].applicability == 1 || tmp[s].applicability == 3) {
+              tmp[s].icon = 'check'
+            }
           }
           done(tmp)
         })
@@ -77,7 +81,13 @@ export default {
         .then((response) => {
           let tmp = response.data.results
           for (let s in tmp) {
-            tmp[s].lazy = true
+            tmp[s].lazy = tmp[s].has_children
+            if (tmp[s].applicability == 1 || tmp[s].applicability == 3) {
+              tmp[s].icon = 'check'
+            }
+            if (tmp[s].type == 4 && tmp[s].requirement) {
+              tmp[s].name = tmp[s].name + ' ' + tmp[s].requirement
+            }
           }
           done(tmp)
         })
@@ -87,7 +97,13 @@ export default {
       api.get(`/requirement-childrens/${node.id}`).then((response) => {
         let tmp = response.data.children
         for (let s in tmp) {
-          tmp[s].lazy = true
+          tmp[s].lazy = tmp[s].has_children
+          if (tmp[s].applicability == 1 || tmp[s].applicability == 3) {
+            tmp[s].icon = 'check'
+          }
+          if (tmp[s].type == 4 && tmp[s].requirement) {
+            tmp[s].name = tmp[s].name + ' ' + tmp[s].requirement
+          }
         }
         done(tmp)
       })
