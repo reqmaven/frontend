@@ -8,7 +8,7 @@
       ></MainToolbar>
     </q-header>
 
-    <q-drawer show-if-above v-model="leftDrawerOpen" side="left" bordered>
+    <q-drawer show-if-above v-model="leftDrawerOpen" side="left" bordered :width="600">
       <RequirementTree></RequirementTree>
     </q-drawer>
 
