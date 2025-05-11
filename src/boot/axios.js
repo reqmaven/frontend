@@ -1,5 +1,6 @@
 import { defineBoot } from '#q-app/wrappers'
 import axios from 'axios'
+import { LocalStorage } from 'quasar'
 
 // Be careful when using SSR for cross-request state pollution
 // due to creating a Singleton instance here;
@@ -13,6 +14,11 @@ const api = axios.create({
     indexes: null,
   },
 })
+
+const token = LocalStorage.getItem('token')
+if (token) {
+  api.defaults.headers.common['Authorization'] = 'Token ' + token
+}
 
 export default defineBoot(({ app }) => {
   // for use inside Vue files (Options API) through this.$axios and this.$api
