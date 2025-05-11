@@ -113,22 +113,30 @@ export default {
     }
 
     function formatChildren(children) {
-      console.log(children)
-      let req = `
+      if (children.applicability == 2) {
+        let req = `
+### ~~${children.name} - ${children.ie_puid}~~
+<details>
+${children.requirement}
+</details>
+`
+        return req
+      } else {
+        let req = `
 ### ${children.name} - ${children.ie_puid}
-${children.requirement}`
-      return req
+${children.requirement}
+`
+        return req
+      }
     }
 
     function getChildrens(id) {
       api.get(`/requirement-childrens/${id}`).then((response) => {
-        console.log(response.data)
         let page_text = `## ${requirement.value.name}
 ${requirement.value.requirement}`
         for (let child of response.data.children) {
           page_text += formatChildren(child)
         }
-        console.log(page_text)
         page.value = page_text
       })
     }
