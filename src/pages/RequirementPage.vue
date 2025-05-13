@@ -1,53 +1,82 @@
 <template>
   <div class="q-pa-md q-gutter-sm">
     <q-card>
-      <q-card-section>
-        <strong>Name: </strong> {{ requirement.name }}<br />
-        <strong>Applicability: </strong> {{ applic[requirement.applicability] }}<br />
-        <strong>Requirement type: </strong>{{ req_type_map[requirement.type] }}<br />
-        <strong>Requirement identifier: </strong>{{ requirement.req_identifier }}<br />
-        <strong>PUID: </strong>{{ requirement.ie_puid }}<br />
-      </q-card-section>
-
-      <q-card-section>
-        <q-separator />
-        <strong>Requirement:</strong><br />
-        <q-markdown :src="requirement.requirement" show-copy />
-        <br />
-        <q-separator />
-
-        <strong>Notes:</strong><br />
-        <q-markdown :src="requirement.notes" />
-        <br />
-
-        <q-separator />
-
-        <strong>Applicability comment: </strong><br />
-        <q-markdown :src="requirement.applicability_comment" />
-        <br />
-      </q-card-section>
+      <q-tabs
+        v-model="tab"
+        dense
+        class="text-grey"
+        active-color="primary"
+        indicator-color="primary"
+        align="justify"
+        narrow-indicator
+      >
+        <q-tab name="requirement" label="Requirement" />
+        <q-tab name="page" label="Page" />
+        <q-tab name="history" label="History" />
+        <q-tab name="comments" label="Comments" />
+      </q-tabs>
 
       <q-separator />
 
-      <q-card-actions align="right" class="bg-white text-teal">
-        <q-btn flat label="Edit" color="primary" @click="edit_requirement = true" />
-        <q-btn
-          flat
-          label="Create child requirement"
-          color="secondary"
-          @click="create_requirement = true"
-        />
-        <q-btn
-          flat
-          label="Delete"
-          color="negative"
-          @click="show_delete_confirmation_dialog = true"
-        />
-      </q-card-actions>
-    </q-card>
+      <q-tab-panels v-model="tab" animated>
+        <q-tab-panel name="requirement">
+          <q-card-section>
+            <strong>Name: </strong> {{ requirement.name }}<br />
+            <strong>Applicability: </strong> {{ applic[requirement.applicability] }}<br />
+            <strong>Requirement type: </strong>{{ req_type_map[requirement.type] }}<br />
+            <strong>Requirement identifier: </strong>{{ requirement.req_identifier }}<br />
+            <strong>PUID: </strong>{{ requirement.ie_puid }}<br />
+          </q-card-section>
 
-    <q-card>
-      <q-card-section><q-markdown :src="page" /></q-card-section>
+          <q-card-section>
+            <q-separator />
+            <strong>Requirement:</strong><br />
+            <q-markdown :src="requirement.requirement" show-copy />
+            <br />
+            <q-separator />
+
+            <strong>Notes:</strong><br />
+            <q-markdown :src="requirement.notes" />
+            <br />
+
+            <q-separator />
+
+            <strong>Applicability comment: </strong><br />
+            <q-markdown :src="requirement.applicability_comment" />
+            <br />
+          </q-card-section>
+
+          <q-separator />
+
+          <q-card-actions align="right" class="bg-white text-teal">
+            <q-btn flat label="Edit" color="primary" @click="edit_requirement = true" />
+            <q-btn
+              flat
+              label="Create child requirement"
+              color="secondary"
+              @click="create_requirement = true"
+            />
+            <q-btn
+              flat
+              label="Delete"
+              color="negative"
+              @click="show_delete_confirmation_dialog = true"
+            />
+          </q-card-actions>
+        </q-tab-panel>
+
+        <q-tab-panel name="page">
+          <RequirementsDocCard :id="requirement.id"></RequirementsDocCard>
+        </q-tab-panel>
+
+        <q-tab-panel name="history">
+          <HistoryCard :id="requirement.id"></HistoryCard>
+        </q-tab-panel>
+
+        <q-tab-panel name="comments">
+          <CommentsCard :id="requirement.id"></CommentsCard>
+        </q-tab-panel>
+      </q-tab-panels>
     </q-card>
 
     <RequirementEditCreateDialog
@@ -60,7 +89,7 @@
     <RequirementEditCreateDialog
       v-model="create_requirement"
       :parent_requirement="requirement"
-      @onCreated="onCreated"
+      @onCreated="onCreated()"
     ></RequirementEditCreateDialog>
 
     <DeleteConfirmationDialog
@@ -80,8 +109,12 @@ import { ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useRouter } from 'vue-router'
 import { api } from 'boot/axios'
+import { useUsersStore } from 'stores/users'
 import RequirementEditCreateDialog from 'components/dialogs/RequirementEditCreateDialog.vue'
 import DeleteConfirmationDialog from 'components/dialogs/DeleteConfirmationDialog.vue'
+import CommentsCard from 'components/CommentsCard.vue'
+import HistoryCard from 'components/HistoryCard.vue'
+import RequirementsDocCard from 'components/RequirementsDocCard.vue'
 
 const applic = ['Todo', 'Applicable', 'No', 'Modified']
 const req_type_map = [
@@ -96,53 +129,22 @@ const req_type_map = [
 export default {
   props: { id: String },
   setup(props) {
+    const users_store = useUsersStore()
     const requirement = ref({ name: '' })
     const route = useRoute()
     const router = useRouter()
     const edit_requirement = ref()
     const create_requirement = ref()
     const show_delete_confirmation_dialog = ref()
-    const page = ref()
 
     function loadInitialData() {
+      api.get(`/user/`).then((response) => {
+        users_store.users = response.data.results
+      })
+
       api.get(`/requirements/${props.id}`).then((response) => {
         requirement.value = response.data
-
-        createPage()
       })
-    }
-
-    function formatChildren(children) {
-      if (children.applicability == 2) {
-        let req = `
-### ~~${children.name} - ${children.ie_puid}~~
-<details>
-${children.requirement}
-</details>
-`
-        return req
-      } else {
-        let req = `
-### ${children.name} - ${children.ie_puid}
-${children.requirement}
-`
-        return req
-      }
-    }
-
-    function getChildrens(id) {
-      api.get(`/requirement-childrens/${id}`).then((response) => {
-        let page_text = `## ${requirement.value.name}
-${requirement.value.requirement}`
-        for (let child of response.data.children) {
-          page_text += formatChildren(child)
-        }
-        page.value = page_text
-      })
-    }
-
-    function createPage() {
-      getChildrens(requirement.value.id)
     }
 
     function onUpdated() {
@@ -170,7 +172,6 @@ ${requirement.value.requirement}`
       () => {
         api.get(`/requirements/${route.params.id}`).then((response) => {
           requirement.value = response.data
-          createPage()
         })
       },
     )
@@ -180,11 +181,11 @@ ${requirement.value.requirement}`
     })
 
     return {
+      tab: ref('requirement'),
       requirement,
       edit_requirement,
       create_requirement,
       show_delete_confirmation_dialog,
-      page,
 
       onCreated,
       onUpdated,
@@ -194,6 +195,12 @@ ${requirement.value.requirement}`
       req_type_map,
     }
   },
-  components: { RequirementEditCreateDialog, DeleteConfirmationDialog },
+  components: {
+    RequirementEditCreateDialog,
+    DeleteConfirmationDialog,
+    HistoryCard,
+    CommentsCard,
+    RequirementsDocCard,
+  },
 }
 </script>
