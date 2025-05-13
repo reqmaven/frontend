@@ -37,7 +37,19 @@ export default {
         let text = ''
         for (let key in fields) {
           if (previous[key] !== current[key]) {
-            text = text + ' Updated ' + fields[key] + ': ' + current[key] + ';'
+            if (!previous[key]) {
+              text = text + ' Created ' + fields[key] + ': ' + current[key] + ';'
+            } else {
+              text =
+                text +
+                ' Updated ' +
+                fields[key] +
+                ': ' +
+                previous[key] +
+                ' -> ' +
+                current[key] +
+                ';'
+            }
           }
         }
         return text

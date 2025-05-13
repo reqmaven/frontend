@@ -109,7 +109,6 @@ import { ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useRouter } from 'vue-router'
 import { api } from 'boot/axios'
-import { useUsersStore } from 'stores/users'
 import RequirementEditCreateDialog from 'components/dialogs/RequirementEditCreateDialog.vue'
 import DeleteConfirmationDialog from 'components/dialogs/DeleteConfirmationDialog.vue'
 import CommentsCard from 'components/CommentsCard.vue'
@@ -129,7 +128,6 @@ const req_type_map = [
 export default {
   props: { id: String },
   setup(props) {
-    const users_store = useUsersStore()
     const requirement = ref({ name: '' })
     const route = useRoute()
     const router = useRouter()
@@ -138,10 +136,6 @@ export default {
     const show_delete_confirmation_dialog = ref()
 
     function loadInitialData() {
-      api.get(`/user/`).then((response) => {
-        users_store.users = response.data.results
-      })
-
       api.get(`/requirements/${props.id}`).then((response) => {
         requirement.value = response.data
       })

@@ -75,7 +75,7 @@ export default {
                 name: users_store.getUserById(msg.created_by).username,
                 // avatar: users_store.getUserById(msg.created_by).avatar,
                 text: [msg.text],
-                sent: msg.created_by == 2,
+                sent: msg.created_by == users_store.me.id,
                 id: msg.id,
               })
             }

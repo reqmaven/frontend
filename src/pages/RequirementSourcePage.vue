@@ -39,6 +39,7 @@
     <RequirementEditCreateDialog
       v-model="create_requirement_dialog"
       :requirement_source_reference="requirement_source"
+      @onCreated="create_requirement_dialog = false"
     />
 
     <DeleteConfirmationDialog

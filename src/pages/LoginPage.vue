@@ -33,12 +33,14 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { api } from 'boot/axios'
 import { useQuasar } from 'quasar'
+import { useUsersStore } from 'stores/users'
 
 export default {
   name: 'LoginPage',
   data() {
     const router = useRouter()
     const $q = useQuasar()
+    const users_store = useUsersStore()
     const email = ref('')
     const password = ref('')
 
@@ -51,6 +53,9 @@ export default {
         .then((response) => {
           $q.localStorage.set('token', response.data.token)
           api.defaults.headers.common['Authorization'] = 'Token ' + response.data.token
+
+          users_store.fetchData()
+
           router.push({ path: '/' })
         })
         .catch(() => {
