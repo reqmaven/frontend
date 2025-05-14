@@ -1,7 +1,7 @@
 <template>
   <q-btn color="primary" label="Create project" @click="show_create_project_dialog = true" />
   <q-tree
-    :nodes="lazy"
+    :nodes="req_tree.nodes"
     default-expand-all
     node-key="id"
     label-key="name"
@@ -23,6 +23,7 @@
 import { ref, onMounted } from 'vue'
 import { api } from 'boot/axios'
 import { useRouter } from 'vue-router'
+import { useReqTreeStore } from 'stores/reqTree'
 import ProjectEditCreateDialog from 'components/dialogs/ProjectEditCreateDialog.vue'
 
 export default {
@@ -30,6 +31,7 @@ export default {
     const nodes = ref([])
     const selected = ref(null)
     const router = useRouter()
+    const req_tree = useReqTreeStore()
     const show_create_project_dialog = ref(false)
 
     function onUpdateSelected(target) {
@@ -54,6 +56,7 @@ export default {
           nodes.value[p].id = 'p' + nodes.value[p].id
           nodes.value[p].lazy = true
         }
+        req_tree.nodes = nodes.value
       })
     }
 
@@ -126,7 +129,7 @@ export default {
     })
 
     return {
-      lazy: ref(nodes),
+      req_tree,
       selected,
       show_create_project_dialog,
 

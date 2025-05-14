@@ -109,6 +109,7 @@ import { ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useRouter } from 'vue-router'
 import { api } from 'boot/axios'
+import { useReqTreeStore } from 'stores/reqTree'
 import RequirementEditCreateDialog from 'components/dialogs/RequirementEditCreateDialog.vue'
 import DeleteConfirmationDialog from 'components/dialogs/DeleteConfirmationDialog.vue'
 import CommentsCard from 'components/CommentsCard.vue'
@@ -131,6 +132,7 @@ export default {
     const requirement = ref({ name: '' })
     const route = useRoute()
     const router = useRouter()
+    const req_tree = useReqTreeStore()
     const edit_requirement = ref()
     const create_requirement = ref()
     const show_delete_confirmation_dialog = ref()
@@ -147,12 +149,22 @@ export default {
     }
 
     function onCreated() {
+      req_tree.refreshRequirementChildren(
+        requirement.value.project,
+        requirement.value.source_reference,
+        requirement.value.id,
+      )
       create_requirement.value = false
     }
 
     function onRequirementDelete() {
       api.delete(`/requirements/${requirement.value.id}/`).then((response) => {
         if (response.status) {
+          req_tree.deleteRequirement(
+            requirement.value.project,
+            requirement.value.source_reference,
+            requirement.value.id,
+          )
           show_delete_confirmation_dialog.value = false
           if (requirement.value.parent) {
             router.push({ path: `/requirement/${requirement.value.parent}` })

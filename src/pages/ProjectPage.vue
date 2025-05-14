@@ -41,7 +41,7 @@
     <RequirementSourceEditCreateDialog
       v-model="create_requirement_source_dialog"
       :project_id="project.id"
-      @onCreated="create_requirement_source_dialog = false"
+      @onCreated="onRequirementSourceCreated()"
     />
 
     <DeleteConfirmationDialog
@@ -67,6 +67,7 @@ import { ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useRouter } from 'vue-router'
 import { api } from 'boot/axios'
+import { useReqTreeStore } from 'stores/reqTree'
 import DeleteConfirmationDialog from 'components/dialogs/DeleteConfirmationDialog.vue'
 import ProjectEditCreateDialog from 'components/dialogs/ProjectEditCreateDialog.vue'
 import RequirementSourceEditCreateDialog from 'components/dialogs/RequirementSourceEditCreateDialog.vue'
@@ -78,6 +79,7 @@ export default {
     const project = ref({ id: null, name: '', description: null })
     const route = useRoute()
     const router = useRouter()
+    const req_tree = useReqTreeStore()
     const create_requirement_source_dialog = ref()
     const show_delete_confirmation_dialog = ref()
     const project_edit_dialog = ref()
@@ -97,10 +99,16 @@ export default {
     function onProjectDelete() {
       api.delete(`/project/${project.value.id}/`).then((response) => {
         if (response.status) {
+          req_tree.deleteProject(project.value.id)
           show_delete_confirmation_dialog.value = false
           router.push({ path: `/` })
         }
       })
+    }
+
+    function onRequirementSourceCreated() {
+      req_tree.refreshRequirementsSources(project.value.id)
+      create_requirement_source_dialog.value = false
     }
 
     watch(
@@ -125,6 +133,7 @@ export default {
 
       onProjectUpdated,
       onProjectDelete,
+      onRequirementSourceCreated,
     }
   },
   components: {

@@ -39,7 +39,7 @@
     <RequirementEditCreateDialog
       v-model="create_requirement_dialog"
       :requirement_source_reference="requirement_source"
-      @onCreated="create_requirement_dialog = false"
+      @onCreated="onRequirementCreated()"
     />
 
     <DeleteConfirmationDialog
@@ -65,6 +65,7 @@ import { ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useRouter } from 'vue-router'
 import { api } from 'boot/axios'
+import { useReqTreeStore } from 'stores/reqTree'
 import DeleteConfirmationDialog from 'components/dialogs/DeleteConfirmationDialog.vue'
 import RequirementSourceEditCreateDialog from 'components/dialogs/RequirementSourceEditCreateDialog.vue'
 import RequirementEditCreateDialog from 'components/dialogs/RequirementEditCreateDialog.vue'
@@ -76,6 +77,7 @@ export default {
     const requirement_source = ref({ name: '', description: null })
     const route = useRoute()
     const router = useRouter()
+    const req_tree = useReqTreeStore()
     const edit_requirement_source_dialog = ref()
     const show_delete_confirmation_dialog = ref()
     const create_requirement_dialog = ref()
@@ -95,10 +97,23 @@ export default {
     function onRequirementSourceDelete() {
       api.delete(`/requirement-source/${requirement_source.value.id}/`).then((response) => {
         if (response.status) {
+          req_tree.deleteRequirementSource(
+            requirement_source.value.project,
+            requirement_source.value.id,
+          )
           show_delete_confirmation_dialog.value = false
           router.push({ path: `/project/${requirement_source.value.project}` })
         }
       })
+    }
+
+    function onRequirementCreated() {
+      req_tree.refreshRequirementChildren(
+        requirement_source.value.project,
+        requirement_source.value.id,
+        null,
+      )
+      create_requirement_dialog.value = false
     }
 
     watch(
@@ -123,6 +138,7 @@ export default {
 
       onRequirementSourceUpdated,
       onRequirementSourceDelete,
+      onRequirementCreated,
     }
   },
   components: {
