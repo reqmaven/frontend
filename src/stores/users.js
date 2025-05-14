@@ -11,13 +11,18 @@ export const useUsersStore = defineStore('UsersStore', {
   },
   actions: {
     async fetchData() {
-      api.get('whoami').then((response) => {
-        this.me = response.data
-      })
+      api
+        .get('whoami')
+        .then((response) => {
+          this.me = response.data
 
-      api.get(`/user/`).then((response) => {
-        this.users = response.data.results
-      })
+          api.get(`/user/`).then((response) => {
+            this.users = response.data.results
+          })
+        })
+        .catch(() => {
+          this.router.push('/login')
+        })
     },
   },
 })
