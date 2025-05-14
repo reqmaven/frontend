@@ -90,6 +90,7 @@ export default {
     }
 
     function onRequirementSourceUpdated() {
+      req_tree.refreshRequirementsSources(requirement_source.value.id)
       edit_requirement_source_dialog.value = false
       loadInitialData()
     }

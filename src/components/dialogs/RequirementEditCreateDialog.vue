@@ -128,16 +128,16 @@ export default {
     const requirement_type = ref()
     const requirement_types = ref()
 
-    function load_requirement_types() {
-      api.options('/requirements/').then((response) => {
+    async function load_requirement_types() {
+      await api.options('/requirements/').then((response) => {
         requirement_types.value = response.data.actions.POST['type'].choices.map((x) => {
           return { id: x.value, name: x.display_name }
         })
       })
     }
 
-    function load_applicability_options() {
-      api.options('/requirements/').then((response) => {
+    async function load_applicability_options() {
+      await api.options('/requirements/').then((response) => {
         applicability_options.value = response.data.actions.POST['applicability'].choices.map(
           (x) => {
             return { id: x.value, name: x.display_name }
@@ -153,11 +153,28 @@ export default {
         api.get(`/requirements/${props.requirement_id}/`).then((response) => {
           new_project_name.value = response.data.name
           requirement.value = response.data
-          requirement_type.value = requirement_types.value[requirement.value.type]
-          applicability.value = applicability_options.value[requirement.value.applicability]
+
+          for (let d of requirement_types.value) {
+            if (d.id == requirement.value.type) {
+              requirement_type.value = d
+              break
+            }
+          }
+          for (let d of applicability_options.value) {
+            if (d.id == requirement.value.applicability) {
+              applicability.value = d
+              break
+            }
+          }
         })
       } else {
+        requirement.value.type = null
+        requirement.value.applicability = null
+        requirement.value.name = ''
+        requirement.value.req_identifier = ''
+        requirement.value.applicability_comment = ''
         requirement.value.requirement = ''
+        requirement.value.notes = ''
       }
     }
 
