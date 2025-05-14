@@ -78,6 +78,9 @@ export default {
       filters.applicability = applicability.value.map((x) => {
         return x.id
       })
+      filters.type = requirement_type.value.map((x) => {
+        return x.id
+      })
       emit('updateFilters', filters)
     }
 

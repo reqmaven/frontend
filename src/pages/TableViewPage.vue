@@ -64,7 +64,7 @@ export default {
     const rows = ref([])
     const loading = ref(false)
     const filter = ref('')
-    const filters = ref({ project: [], requirement_sources: [], applicability: [] })
+    const filters = ref({ project: [], requirement_sources: [], applicability: [], type: [] })
     const pagination = ref({
       sortBy: 'desc',
       descending: false,
@@ -84,6 +84,7 @@ export default {
             project__in: filters.value.project.join(),
             source_reference__in: filters.value.requirement_sources.join(),
             applicability__in: filters.value.applicability.join(),
+            type__in: filters.value.type.join(),
             page: props.pagination.page,
             search: filter,
           },
