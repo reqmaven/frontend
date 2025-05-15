@@ -68,6 +68,9 @@
 import { defineComponent } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUsersStore } from 'stores/users'
+import { useProjectStore } from 'stores/projects'
+import { useRequirementSourceStore } from 'stores/requirementSources'
+import { useRequirementTypeStore } from 'stores/requirementType'
 import { useQuasar } from 'quasar'
 
 export default defineComponent({
@@ -77,8 +80,14 @@ export default defineComponent({
     const $q = useQuasar()
     const router = useRouter()
     const users_store = useUsersStore()
+    const projects = useProjectStore()
+    const requirement_sources = useRequirementSourceStore()
+    const requirement_type = useRequirementTypeStore()
 
     users_store.fetchData()
+    projects.fetchData()
+    requirement_sources.fetchData()
+    requirement_type.fetchData()
 
     function onSignOut() {
       $q.localStorage.removeItem('token')

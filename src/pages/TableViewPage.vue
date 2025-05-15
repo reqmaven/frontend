@@ -29,8 +29,14 @@
 import { ref, onMounted } from 'vue'
 import { api } from 'boot/axios'
 import FiltersCard from 'components/FiltersCard.vue'
+import { useProjectStore } from 'stores/projects'
+import { useRequirementSourceStore } from 'stores/requirementSources'
+import { useRequirementTypeStore } from 'stores/requirementType'
 
 const applic = ['Todo', 'Applicable', 'No', 'Modified']
+const projects = useProjectStore()
+const requirement_source = useRequirementSourceStore()
+const requirement_type = useRequirementTypeStore()
 
 const columns = [
   {
@@ -38,11 +44,26 @@ const columns = [
     required: true,
     label: 'Project name',
     align: 'left',
-    field: (row) => row.project,
+    field: 'project',
+    format: (val) => projects.getProjectById(val).name,
   },
-  { name: 'source', align: 'center', label: 'Source', field: 'source_reference', sortable: true },
+  {
+    name: 'source',
+    align: 'center',
+    label: 'Source',
+    field: 'source_reference',
+    sortable: true,
+    format: (val) => requirement_source.getSourceById(val).name,
+  },
   { name: 'req_identifier', label: 'Identifier', field: 'req_identifier', sortable: true },
-  { name: 'type', label: 'Type', field: 'type' },
+  {
+    name: 'type',
+    label: 'Type',
+    field: 'type',
+    format: (val) => {
+      if (val) return requirement_type.getTypeById(val).name
+    },
+  },
   { name: 'ie_puid', label: 'PUID', field: 'ie_puid' },
   {
     name: 'applicability',
@@ -61,6 +82,7 @@ const columns = [
 export default {
   setup() {
     const tableRef = ref()
+
     const rows = ref([])
     const loading = ref(false)
     const filter = ref('')
