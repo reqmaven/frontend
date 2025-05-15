@@ -1,4 +1,9 @@
 <template>
+  <q-toggle
+    v-model="show_non_applicable"
+    label="Show Non applicable"
+    @update:model-value="loadData"
+  />
   <q-markdown :src="page" />
 </template>
 
@@ -13,17 +18,20 @@ export default {
   },
   setup(props) {
     const requirement = ref({ name: '' })
+    const show_non_applicable = ref(true)
     const page = ref()
 
     function formatChildren(children) {
       if (children.applicability == 2) {
-        let req = `
+        if (show_non_applicable.value) {
+          let req = `
 ### ~~${children.name} - ${children.ie_puid}~~
 <details>
 ${children.requirement}
 </details>
 `
-        return req
+          return req
+        }
       } else {
         let req = `
 ### ${children.name} - ${children.ie_puid}
@@ -71,6 +79,8 @@ ${requirement.value.requirement}`
 
     return {
       page,
+      show_non_applicable,
+      loadData,
     }
   },
 }
