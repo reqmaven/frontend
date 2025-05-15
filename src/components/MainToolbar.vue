@@ -59,6 +59,13 @@
       </q-menu>
     </q-btn>
 
+    <q-btn
+      flat
+      round
+      @click="$q.dark.toggle()"
+      :icon="$q.dark.isActive ? 'brightness_2' : 'brightness_5'"
+    />
+
     <div>Quasar v{{ $q.version }}</div>
     <q-btn dense flat round icon="menu" @click="$emit('toggleRightDrawer')" />
   </q-toolbar>

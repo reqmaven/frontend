@@ -48,7 +48,7 @@
 
           <q-separator />
 
-          <q-card-actions align="right" class="bg-white text-teal">
+          <q-card-actions align="right">
             <q-btn flat label="Edit" color="primary" @click="edit_requirement = true" />
             <q-btn
               flat
