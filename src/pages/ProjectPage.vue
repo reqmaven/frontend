@@ -58,6 +58,7 @@
       v-model="import_requirements_sources_dialog"
       url="/project_requirements_sources_import"
       :params="{ project_id: project.id }"
+      @onImport="import_requirements_sources_dialog = false"
     />
   </div>
 </template>

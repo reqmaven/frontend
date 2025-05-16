@@ -8,8 +8,19 @@
       ></MainToolbar>
     </q-header>
 
-    <q-drawer show-if-above v-model="leftDrawerOpen" side="left" bordered :width="600">
+    <q-drawer
+      show-if-above
+      v-model="leftDrawerOpen"
+      side="left"
+      bordered
+      :width="drawerWidth"
+      :breakpoint="0"
+    >
       <RequirementTree></RequirementTree>
+      <div
+        v-touch-pan.preserveCursor.prevent.mouse.horizontal="resizeDrawer"
+        class="q-drawer__resizer"
+      ></div>
     </q-drawer>
 
     <q-drawer show-if-above v-model="rightDrawerOpen" side="right" bordered>
@@ -40,6 +51,15 @@ const leftDrawerOpen = ref(true)
 const rightDrawerOpen = ref(false)
 
 const import_dialog = ref(false)
+const drawerWidth = ref(400)
+let initialDrawerWidth
+
+function resizeDrawer(ev) {
+  if (ev.isFirst === true) {
+    initialDrawerWidth = drawerWidth.value
+  }
+  drawerWidth.value = initialDrawerWidth + ev.offset.x
+}
 
 function toggleLeftDrawer() {
   leftDrawerOpen.value = !leftDrawerOpen.value
@@ -49,3 +69,13 @@ function toggleRightDrawer() {
   rightDrawerOpen.value = !rightDrawerOpen.value
 }
 </script>
+
+<style lang="sass" scoped>
+.q-drawer__resizer
+  position: absolute
+  top: 0
+  bottom: 0
+  right: -2px
+  width: 4px
+  cursor: ew-resize
+</style>
