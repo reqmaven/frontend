@@ -14,13 +14,18 @@
 
     <q-drawer show-if-above v-model="rightDrawerOpen" side="right" bordered>
       <!-- drawer content -->
+      <TaskProgressCard></TaskProgressCard>
     </q-drawer>
 
     <q-page-container>
       <router-view />
     </q-page-container>
 
-    <ImportDialog v-model="import_dialog" url="/requirements_import"></ImportDialog>
+    <ImportDialog
+      v-model="import_dialog"
+      url="/requirements_import"
+      @onImport="import_dialog = false"
+    ></ImportDialog>
   </q-layout>
 </template>
 
@@ -29,6 +34,7 @@ import { ref } from 'vue'
 import RequirementTree from 'components/RequirementTree.vue'
 import MainToolbar from 'components/MainToolbar.vue'
 import ImportDialog from 'components/dialogs/ImportDialog.vue'
+import TaskProgressCard from 'components/TasksProgressCard.vue'
 
 const leftDrawerOpen = ref(true)
 const rightDrawerOpen = ref(false)

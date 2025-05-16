@@ -10,12 +10,6 @@
       <q-form method="post" enctype="multipart/form-data" class="q-gutter-md" @submit="onSubmit">
         <q-card-section style="max-height: 60vh" class="scroll">
           <q-file name="file" filled v-model="importer" label="Import data file" />
-          <br />
-          <q-linear-progress size="25px" :value="import_progress" color="accent">
-            <div class="absolute-full flex flex-center">
-              <q-badge color="white" text-color="accent" :label="progressLabel" />
-            </div>
-          </q-linear-progress>
         </q-card-section>
 
         <q-separator />
@@ -32,9 +26,11 @@
 <script>
 import { ref, defineComponent } from 'vue'
 import { api } from 'boot/axios'
+import { useTasksStore } from 'stores/tasks'
 
 export default defineComponent({
   name: 'ImportDialog',
+  emits: ['onImport'],
   props: {
     url: {
       type: String,
@@ -43,11 +39,10 @@ export default defineComponent({
       type: Object,
     },
   },
-  setup(props) {
+  setup(props, ctx) {
     const loading = ref()
     const importer = ref()
-    const import_progress = ref()
-    const progressLabel = ref()
+    const tasks = useTasksStore()
 
     function onSubmit() {
       var formData = new FormData()
@@ -56,19 +51,21 @@ export default defineComponent({
       }
 
       formData.append('file', importer.value)
-      api.post(props.url, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      })
+      api
+        .post(props.url, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        })
+        .then((response) => {
+          tasks.addTask(response.data.task_id)
+          ctx.emit('onImport')
+        })
     }
 
     return {
       loading,
       importer,
-
-      import_progress,
-      progressLabel,
 
       onSubmit,
     }
