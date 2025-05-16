@@ -6,7 +6,7 @@
       <q-card square bordered>
         <q-card-section>
           <q-form class="q-gutter-md">
-            <q-input square filled clearable v-model="email" type="email" label="email" />
+            <q-input square filled clearable v-model="email" type="login" label="login" />
             <q-input square filled clearable v-model="password" type="password" label="password" />
           </q-form>
         </q-card-section>
