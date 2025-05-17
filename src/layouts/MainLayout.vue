@@ -46,12 +46,14 @@ import RequirementTree from 'components/RequirementTree.vue'
 import MainToolbar from 'components/MainToolbar.vue'
 import ImportDialog from 'components/dialogs/ImportDialog.vue'
 import TaskProgressCard from 'components/TasksProgressCard.vue'
+import { storeToRefs } from 'pinia'
+import { useSettingsStore } from 'stores/settings'
 
 const leftDrawerOpen = ref(true)
 const rightDrawerOpen = ref(false)
 
 const import_dialog = ref(false)
-const drawerWidth = ref(400)
+const { drawerWidth } = storeToRefs(useSettingsStore())
 let initialDrawerWidth
 
 function resizeDrawer(ev) {

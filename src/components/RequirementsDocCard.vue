@@ -10,7 +10,9 @@
 <script>
 import { ref, onMounted, watch } from 'vue'
 import { api } from 'boot/axios'
+import { storeToRefs } from 'pinia'
 import { useRequirementsCacheStore } from 'stores/requirementsCache'
+import { useSettingsStore } from 'stores/settings'
 
 export default {
   name: 'RequirementsDocCard',
@@ -20,7 +22,7 @@ export default {
   setup(props) {
     const requirementCache = useRequirementsCacheStore()
     const requirement = ref({ name: '' })
-    const show_non_applicable = ref(true)
+    const { show_non_applicable } = storeToRefs(useSettingsStore())
     const page = ref()
 
     function formatHeading(requirement, level) {
