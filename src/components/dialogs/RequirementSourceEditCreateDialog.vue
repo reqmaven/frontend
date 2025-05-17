@@ -16,7 +16,9 @@
           filled
           @keyup.enter="prompt = false"
           label="Requirement source name"
-          hint="Requirement text"
+          hint="Requirement source name"
+          lazy-rules
+          :rules="[(val) => (val && val.length > 0) || 'Requirement source name is required']"
         />
         <br />
         <q-input

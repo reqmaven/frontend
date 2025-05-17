@@ -14,6 +14,8 @@
           filled
           label="Requirement Identifier"
           hint="Requirement Identifier"
+          lazy-rules
+          :rules="[(val) => (val && val.length > 0) || 'Required']"
         />
         <SelectField
           class="col-3 q-pa-sm"
@@ -21,6 +23,8 @@
           v-model="requirement_type"
           url="/requirements/"
           options_field="type"
+          lazy-rules
+          :rules="[(val) => val != null || 'Required']"
         ></SelectField>
       </q-card-section>
 
@@ -32,6 +36,8 @@
           filled
           label="Requirement name"
           hint="Requirement name"
+          lazy-rules
+          :rules="[(val) => (val && val.length > 0) || 'Required']"
         />
         <SelectField
           class="col-3 q-pa-sm"
@@ -39,6 +45,8 @@
           v-model="applicability"
           url="/requirements/"
           options_field="applicability"
+          lazy-rules
+          :rules="[(val) => (val && val.length > 0) || 'Required']"
         ></SelectField>
       </q-card-section>
 
@@ -121,7 +129,7 @@ export default {
   emits: ['onCreated', 'onUpdated'],
   setup(props, ctx) {
     const new_project_name = ref()
-    const requirement = ref({ requirement: '', notes: '', type: null })
+    const requirement = ref({ requirement: null, notes: null, type: null })
     const $q = useQuasar()
     const applicability = ref()
     const applicability_options = ref()
@@ -170,11 +178,11 @@ export default {
       } else {
         requirement.value.type = null
         requirement.value.applicability = null
-        requirement.value.name = ''
-        requirement.value.req_identifier = ''
-        requirement.value.applicability_comment = ''
-        requirement.value.requirement = ''
-        requirement.value.notes = ''
+        requirement.value.name = null
+        requirement.value.req_identifier = null
+        requirement.value.applicability_comment = null
+        requirement.value.requirement = null
+        requirement.value.notes = null
       }
     }
 

@@ -9,7 +9,14 @@
 
       <q-form method="post" enctype="multipart/form-data" class="q-gutter-md" @submit="onSubmit">
         <q-card-section style="max-height: 60vh" class="scroll">
-          <q-file name="file" filled v-model="importer" label="Import data file" />
+          <q-file
+            name="file"
+            filled
+            v-model="importer"
+            label="Import data file"
+            lazy-rules
+            :rules="[(val) => (val && val.length > 0) || 'Please select file']"
+          />
         </q-card-section>
 
         <q-separator />
@@ -59,7 +66,7 @@ export default defineComponent({
         })
         .then((response) => {
           tasks.addTask(response.data.task_id)
-          ctx.emit('onImport')
+          ctx.emit('onUpdated')
         })
     }
 

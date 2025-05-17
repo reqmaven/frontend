@@ -17,6 +17,8 @@
           @keyup.enter="prompt = false"
           label="Project name"
           hint="Project name"
+          lazy-rules
+          :rules="[(val) => (val && val.length > 0) || 'Project name is required']"
         />
         <br />
         <q-input
