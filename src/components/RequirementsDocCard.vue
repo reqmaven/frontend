@@ -10,6 +10,7 @@
 <script>
 import { ref, onMounted, watch } from 'vue'
 import { api } from 'boot/axios'
+import { useRequirementsCacheStore } from 'stores/requirementsCache'
 
 export default {
   name: 'RequirementsDocCard',
@@ -17,43 +18,61 @@ export default {
     id: Number,
   },
   setup(props) {
+    const requirementCache = useRequirementsCacheStore()
     const requirement = ref({ name: '' })
     const show_non_applicable = ref(true)
     const page = ref()
 
-    function formatChildren(children) {
+    function formatHeading(requirement, level) {
+      let heading_preamble = '\n' + '#'.repeat(level) + ' '
+      let heading_text = requirement.name
+      if (requirement.ie_puid) {
+        heading_text += ` - ${requirement.ie_puid}`
+      }
+      if (requirement.applicability == 2) {
+        return heading_preamble + '~~' + heading_text + '~~\n'
+      } else {
+        return heading_preamble + heading_text + '\n'
+      }
+    }
+
+    function formatReq(children, level) {
+      let heading = formatHeading(children, level)
       if (children.applicability == 2) {
         if (show_non_applicable.value) {
-          let req = `
-### ~~${children.name} - ${children.ie_puid}~~
+          return (
+            heading +
+            `
 <details>
 ${children.requirement}
 </details>
 `
-          return req
+          )
+        } else {
+          return ''
         }
       } else {
-        let req = `
-### ${children.name} - ${children.ie_puid}
-${children.requirement}
-`
-        return req
+        return heading + `${children.requirement}\n`
       }
     }
 
-    function getChildrens(id) {
-      api.get(`/requirement-childrens/${id}`).then((response) => {
-        let page_text = `## ${requirement.value.name}
-${requirement.value.requirement}`
-        for (let child of response.data.children) {
-          page_text += formatChildren(child)
-        }
-        page.value = page_text
-      })
+    async function formatRequirement(id, level) {
+      const result = requirementCache.getOrFetch(id)
+      const req = await result
+      let text = formatReq(req, level)
+
+      for (let children_id of req.children) {
+        const child_result = formatRequirement(children_id, level + 1)
+        let c = await child_result
+        text = text + c
+      }
+      return text
     }
 
-    function createPage() {
-      getChildrens(requirement.value.id)
+    async function createPage() {
+      const result = formatRequirement(requirement.value.id, 1)
+      const text = await result
+      page.value = text
     }
 
     function loadData() {
