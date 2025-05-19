@@ -9,6 +9,7 @@
 
 <script>
 import { ref, onMounted, watch } from 'vue'
+import { useQuasar } from 'quasar'
 import { api } from 'boot/axios'
 import { storeToRefs } from 'pinia'
 import { useRequirementsCacheStore } from 'stores/requirementsCache'
@@ -24,6 +25,7 @@ export default {
     const requirement = ref({ name: '' })
     const { show_non_applicable } = storeToRefs(useSettingsStore())
     const page = ref()
+    const $q = useQuasar()
 
     function formatHeading(requirement, level) {
       let heading_preamble = '\n' + '#'.repeat(level) + ' '
@@ -72,9 +74,15 @@ ${children.requirement}
     }
 
     async function createPage() {
+      $q.loading.show({
+        message: 'Loading requirements',
+      })
+      // Preload requirements
+      await requirementCache.fetchRequirementsSource(requirement.value.source_reference)
       const result = formatRequirement(requirement.value.id, 1)
       const text = await result
       page.value = text
+      $q.loading.hide()
     }
 
     function loadData() {

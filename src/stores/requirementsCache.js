@@ -2,7 +2,7 @@ import { defineStore, acceptHMRUpdate } from 'pinia'
 import { api } from 'boot/axios'
 
 export const useRequirementsCacheStore = defineStore('requirementsCacheStore', {
-  state: () => ({ requirements: {} }),
+  state: () => ({ requirements: {}, last_requirement_source_id: null }),
   getters: {},
   actions: {
     async fetchRequirement(id) {
@@ -17,6 +17,26 @@ export const useRequirementsCacheStore = defineStore('requirementsCacheStore', {
         return this.requirements[id]
       } else {
         return await this.fetchRequirement(id)
+      }
+    },
+
+    async fetchRequirementsSource(id) {
+      if (this.last_requirement_source_id !== id) {
+        return api
+          .get(`/requirements/`, {
+            params: {
+              source_reference: id,
+              page_size: 10000,
+            },
+          })
+          .then((response) => {
+            for (let req of response.data.results) {
+              this.requirements[req.id] = req
+            }
+            this.last_requirement_source_id = id
+          })
+      } else {
+        return Promise.resolve()
       }
     },
   },
