@@ -1,5 +1,6 @@
 <template>
   <q-select
+    ref="select"
     filled
     v-model="model"
     use-input
@@ -63,6 +64,11 @@ export default {
 
       filterFn,
     }
+  },
+  methods: {
+    validate(...args) {
+      return this.$refs.select.validate(...args)
+    },
   },
 }
 </script>

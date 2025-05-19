@@ -9,6 +9,7 @@
 
       <q-card-section class="row">
         <q-input
+          ref="req_identifier_ref"
           class="col-3 q-pa-sm"
           v-model="requirement.req_identifier"
           filled
@@ -18,6 +19,7 @@
           :rules="[(val) => (val && val.length > 0) || 'Required']"
         />
         <SelectField
+          ref="req_type_ref"
           class="col-3 q-pa-sm"
           label="Requirement Type"
           v-model="requirement_type"
@@ -30,6 +32,7 @@
 
       <q-card-section class="row">
         <q-input
+          ref="req_name_ref"
           class="col-3 q-pa-sm"
           v-model="requirement.name"
           autofocus
@@ -40,6 +43,7 @@
           :rules="[(val) => (val && val.length > 0) || 'Required']"
         />
         <SelectField
+          ref="req_applicability_ref"
           class="col-3 q-pa-sm"
           label="Applicability"
           v-model="applicability"
@@ -52,6 +56,7 @@
 
       <q-card-section class="row">
         <q-input
+          ref="req_applicabiliy_comment_ref"
           class="col-6 q-pa-sm"
           type="textarea"
           v-model="requirement.applicability_comment"
@@ -135,6 +140,11 @@ export default {
     const applicability_options = ref()
     const requirement_type = ref()
     const requirement_types = ref()
+    const req_identifier_ref = ref()
+    const req_type_ref = ref()
+    const req_name_ref = ref()
+    const req_applicability_ref = ref()
+    const req_applicabiliy_comment_ref = ref()
 
     async function load_requirement_types() {
       await api.options('/requirements/').then((response) => {
@@ -183,26 +193,35 @@ export default {
         requirement.value.applicability_comment = null
         requirement.value.requirement = null
         requirement.value.notes = null
+        applicability.value = null
       }
     }
 
     function validate_and_submit() {
-      const data = requirement.value
-      data.type = requirement_type.value.id
-      data.applicability = applicability.value.id
+      let validated = true
+      validated &= req_identifier_ref.value.validate()
+      validated &= req_type_ref.value.validate()
+      validated &= req_name_ref.value.validate()
+      validated &= req_applicability_ref.value.validate()
+      validated &= req_applicabiliy_comment_ref.value.validate()
+      if (validated) {
+        const data = requirement.value
+        data.type = requirement_type.value.id
+        data.applicability = applicability.value.id
 
-      if (props.requirement_id) {
-        edit_requirement(data)
-      } else {
-        if (props.requirement_source_reference) {
-          data.project = props.requirement_source_reference.project
-          data.source_reference = props.requirement_source_reference.id
+        if (props.requirement_id) {
+          edit_requirement(data)
         } else {
-          data.project = props.parent_requirement.project
-          data.source_reference = props.parent_requirement.source_reference
-          data.parent = props.parent_requirement.id
+          if (props.requirement_source_reference) {
+            data.project = props.requirement_source_reference.project
+            data.source_reference = props.requirement_source_reference.id
+          } else {
+            data.project = props.parent_requirement.project
+            data.source_reference = props.parent_requirement.source_reference
+            data.parent = props.parent_requirement.id
+          }
+          create_requirement(data)
         }
-        create_requirement(data)
       }
     }
 
@@ -254,6 +273,12 @@ export default {
       requirement_type,
       validate_and_submit,
       load_initial_data,
+
+      req_identifier_ref,
+      req_type_ref,
+      req_name_ref,
+      req_applicability_ref,
+      req_applicabiliy_comment_ref,
     }
   },
   components: { SelectField },
