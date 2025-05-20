@@ -9,20 +9,13 @@
 
       <q-form method="post" enctype="multipart/form-data" class="q-gutter-md" @submit="onSubmit">
         <q-card-section style="max-height: 60vh" class="scroll">
-          <q-file
-            name="file"
-            filled
-            v-model="importer"
-            label="Import data file"
-            lazy-rules
-            :rules="[(val) => (val && val.length > 0) || 'Please select file']"
-          />
+          <q-file name="file" filled v-model="importer" label="Import data file" lazy-rules />
         </q-card-section>
 
         <q-separator />
 
         <q-card-actions align="right">
-          <q-btn flat label="Import" color="primary" type="submit" />
+          <q-btn flat label="Import" color="primary" type="submit" :disable="importer === null" />
           <q-btn flat label="Close" color="primary" v-close-popup />
         </q-card-actions>
       </q-form>
@@ -48,7 +41,7 @@ export default defineComponent({
   },
   setup(props, ctx) {
     const loading = ref()
-    const importer = ref()
+    const importer = ref(null)
     const tasks = useTasksStore()
 
     function onSubmit() {
