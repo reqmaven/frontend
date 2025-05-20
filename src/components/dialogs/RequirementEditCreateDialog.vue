@@ -50,7 +50,7 @@
           url="/requirements/"
           options_field="applicability"
           lazy-rules
-          :rules="[(val) => (val && val.length > 0) || 'Required']"
+          :rules="[(val) => val != null || 'Required']"
         ></SelectField>
       </q-card-section>
 
@@ -208,6 +208,7 @@ export default {
         const data = requirement.value
         data.type = requirement_type.value.id
         data.applicability = applicability.value.id
+        data.history = []
 
         if (props.requirement_id) {
           edit_requirement(data)
