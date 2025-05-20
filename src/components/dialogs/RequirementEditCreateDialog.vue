@@ -208,7 +208,8 @@ export default {
         const data = requirement.value
         data.type = requirement_type.value.id
         data.applicability = applicability.value.id
-        data.history = []
+        delete data.history
+        delete data.caused_by
 
         if (props.requirement_id) {
           edit_requirement(data)
