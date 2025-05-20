@@ -7,7 +7,7 @@
         {{ requirement_source.description }}
       </q-card-section>
 
-      <q-card-actions align="right" class="bg-white text-teal">
+      <q-card-actions align="right">
         <q-btn flat label="Edit" color="primary" @click="edit_requirement_source_dialog = true" />
         <q-btn
           flat
