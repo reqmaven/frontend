@@ -56,7 +56,11 @@ ${children.requirement}
           return ''
         }
       } else {
-        return heading + `${children.requirement}\n`
+        if (children.type == 4) {
+          return heading + `\n`
+        } else {
+          return heading + `${children.requirement}\n`
+        }
       }
     }
 

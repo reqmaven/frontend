@@ -47,6 +47,37 @@
           </q-card-section>
 
           <q-separator />
+          <q-card-section>
+            <q-table
+              title="Caused by"
+              :rows="rows"
+              :columns="columns"
+              :filter="filter"
+              row-key="id"
+              wrap-cells
+            >
+              <template v-slot:top-right>
+                <q-input borderless dense debounce="300" v-model="filter" placeholder="Search">
+                  <template v-slot:append>
+                    <q-icon name="search" />
+                  </template>
+                </q-input>
+                <q-btn
+                  color="primary"
+                  icon-right="add"
+                  no-caps
+                  @click="show_requirement_pick_dialog = true"
+                />
+              </template>
+            </q-table>
+          </q-card-section>
+
+          <q-separator />
+          <q-card-section>
+            <strong>Mentions:</strong>
+          </q-card-section>
+
+          <q-separator />
 
           <q-card-actions align="right">
             <q-btn flat label="Edit" color="primary" @click="edit_requirement = true" />
@@ -92,6 +123,13 @@
       @onCreated="onCreated()"
     ></RequirementEditCreateDialog>
 
+    <RequirementPickDialog
+      v-model="show_requirement_pick_dialog"
+      :project_id="requirement.project"
+      :requirement="requirement"
+      @onAdded="onCausedByAdded"
+    ></RequirementPickDialog>
+
     <DeleteConfirmationDialog
       v-model="show_delete_confirmation_dialog"
       :title="'Delete Requirement'"
@@ -115,6 +153,7 @@ import DeleteConfirmationDialog from 'components/dialogs/DeleteConfirmationDialo
 import CommentsCard from 'components/CommentsCard.vue'
 import HistoryCard from 'components/HistoryCard.vue'
 import RequirementsDocCard from 'components/RequirementsDocCard.vue'
+import RequirementPickDialog from 'components/dialogs/RequirementPickDialog.vue'
 
 const applic = ['Todo', 'Applicable', 'No', 'Modified']
 const req_type_map = [
@@ -124,6 +163,28 @@ const req_type_map = [
   'Permission',
   'Heading',
   'Information',
+]
+
+const columns = [
+  { name: 'req_identifier', label: 'Identifier', field: 'req_identifier', sortable: true },
+  {
+    name: 'type',
+    label: 'Type',
+    field: 'type',
+  },
+  { name: 'ie_puid', label: 'PUID', field: 'ie_puid' },
+  {
+    name: 'applicability',
+    label: 'Applicability',
+    field: 'applicability',
+    format: (val) => applic[val],
+  },
+  { name: 'requirement', label: 'Requirement', align: 'center', field: 'requirement' },
+  {
+    name: 'notes',
+    label: 'Notes',
+    field: 'notes',
+  },
 ]
 
 export default {
@@ -136,10 +197,14 @@ export default {
     const edit_requirement = ref()
     const create_requirement = ref()
     const show_delete_confirmation_dialog = ref()
+    const show_requirement_pick_dialog = ref()
+    const rows = ref([])
+    const filter = ref()
 
     function loadInitialData() {
       api.get(`/requirements/${props.id}`).then((response) => {
         requirement.value = response.data
+        rows.value = requirement.value.caused_by
       })
     }
 
@@ -173,11 +238,17 @@ export default {
       })
     }
 
+    function onCausedByAdded() {
+      show_requirement_pick_dialog.value = false
+      loadInitialData()
+    }
+
     watch(
       () => route.params.id,
       () => {
         api.get(`/requirements/${route.params.id}`).then((response) => {
           requirement.value = response.data
+          rows.value = requirement.value.caused_by
         })
       },
     )
@@ -192,10 +263,15 @@ export default {
       edit_requirement,
       create_requirement,
       show_delete_confirmation_dialog,
+      show_requirement_pick_dialog,
+      columns,
+      rows,
+      filter,
 
       onCreated,
       onUpdated,
       onRequirementDelete,
+      onCausedByAdded,
 
       applic,
       req_type_map,
@@ -207,6 +283,7 @@ export default {
     HistoryCard,
     CommentsCard,
     RequirementsDocCard,
+    RequirementPickDialog,
   },
 }
 </script>
